@@ -1,0 +1,607 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>Design Speak App</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap">
+<style>
+/* Design Speak — full app with real per-unit content (17 units, A/B/C).
+   Swiss: type + whitespace, 8px grid. Progress is real (localStorage). */
+:root{
+  --paper:#F4F3EE; --ink:#16150F; --muted:#8A887E; --accent:#E12D1B;
+  --f:"Helvetica Neue","Helvetica","Inter",Arial,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#121210; --ink:#F1EFE7; --muted:#827F75; --accent:#F23A26; color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --paper:#121210; --ink:#F1EFE7; --muted:#827F75; --accent:#F23A26; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--f);
+  font-size:17px;line-height:24px;font-feature-settings:"tnum" 1;
+  -webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--paper);z-index:60}
+button{font-family:inherit;font-size:inherit;color:inherit;background:none;border:none;padding:0;cursor:pointer;
+  -webkit-tap-highlight-color:transparent}
+.tnum{font-variant-numeric:tabular-nums}
+[hidden]{display:none!important}
+.pad{padding-left:max(8px,env(safe-area-inset-left,0px));padding-right:max(8px,env(safe-area-inset-right,0px))}
+.label{font-weight:700;font-size:13px;line-height:16px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+.ar{display:inline-block;width:.74em;height:.74em;vertical-align:-0.01em;stroke:currentColor;stroke-width:2.6;fill:none;stroke-linecap:square;stroke-linejoin:miter;margin:0 .02em}
+.hero .n,.stat .n,.unit .head,.q,.card .word,.w-continue,.back,.next,.card .reveal,
+.o-strong,.o-weak,.o-q,.stitle,.opt{text-box-trim:trim-end;text-box-edge:cap alphabetic}
+.ru{margin-top:8px;color:var(--muted);font-size:14px;line-height:16px}
+body.hide-ru .ru{display:none}
+
+.poster{max-width:500px;margin:0 auto;min-height:100%;background:var(--accent);color:#000;
+  display:grid;grid-template-rows:auto 1fr auto;
+  padding-top:max(40px,env(safe-area-inset-top,0px));padding-bottom:max(32px,env(safe-area-inset-bottom,0px))}
+.poster::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--accent);z-index:61}
+.p-label{font-weight:700;font-size:14px;line-height:24px;letter-spacing:.2em;text-transform:uppercase}
+.p-top{padding-top:8px;display:grid;grid-template-columns:repeat(12,1fr);gap:8px;row-gap:8px}
+.w-n{grid-column:1 / 13;font-weight:900;letter-spacing:-.05em;font-size:clamp(120px,42vw,220px);line-height:.82}
+.p-top .p-label{grid-column:7 / 13}
+.p-mid{align-self:center;display:grid;grid-template-columns:repeat(12,1fr);gap:8px;padding-block:24px}
+.w-q{grid-column:1 / 11;font-weight:500;font-size:clamp(21px,6vw,27px);line-height:32px;letter-spacing:-.01em}
+.w-cite{grid-column:7 / 13;margin-top:8px}
+.p-bot{display:flex;flex-wrap:wrap;gap:28px}
+.w-continue{color:#000;font-weight:700;letter-spacing:-.03em;font-size:clamp(25px,7vw,31px);line-height:1}
+.o-weak{grid-column:1 / 13;font-weight:600;letter-spacing:-.02em;font-size:clamp(24px,7vw,32px);line-height:1.05;text-decoration:line-through;text-decoration-thickness:2px;opacity:.72}
+.o-strong{grid-column:1 / 13;margin-top:16px;font-weight:800;letter-spacing:-.03em;font-size:clamp(30px,9vw,44px);line-height:1.04}
+.o-q{grid-column:1 / 13;font-weight:800;letter-spacing:-.03em;font-size:clamp(34px,10vw,48px);line-height:1.02}
+.o-q-ru{grid-column:1 / 13;margin-top:12px;font-weight:500;font-size:clamp(16px,4.5vw,20px);line-height:24px}
+.p-opt{color:#000;font-weight:800;letter-spacing:-.03em;font-size:clamp(28px,8vw,36px);line-height:1}
+
+.app,.screen{max-width:500px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;background:var(--paper)}
+.back{align-self:flex-start;color:var(--accent);font-weight:700;letter-spacing:-.03em;font-size:clamp(25px,7vw,31px);line-height:1;padding-top:32px}
+.screen main{flex:1;margin-top:32px}
+.screen main>:first-child{margin-top:0}
+.pivot{display:flex;gap:16px;overflow-x:auto;scrollbar-width:none;padding-top:32px;padding-bottom:32px}
+.pivot::-webkit-scrollbar{display:none}
+.pivot button{flex:none;font-weight:800;letter-spacing:-.03em;font-size:clamp(32px,10vw,40px);line-height:1;color:var(--accent);white-space:nowrap}
+.pivot button[aria-current="true"]{color:var(--ink)}
+.app main{flex:1}
+.level{margin-top:48px;padding-bottom:8px}
+.level:first-child{margin-top:8px}
+.level h2{font-weight:700;font-size:16px;line-height:24px;letter-spacing:-.01em;color:var(--ink)}
+.unit{display:block;width:100%;text-align:left;padding-block:16px}
+.unit .head{font-weight:700;letter-spacing:-.03em;font-size:clamp(25px,7vw,31px);line-height:1.05;color:var(--accent)}
+.unit .sub{margin-top:8px;color:var(--muted);font-size:13px;line-height:16px}
+.unit.done .head{font-weight:300;color:var(--muted);text-decoration:line-through;text-decoration-thickness:1px}
+.unit.locked{cursor:default}
+.unit.locked .head{font-weight:300;color:var(--muted);opacity:.45}
+.unit.locked .sub{opacity:.45}
+.unit.static .head{color:var(--ink)}
+.hero{padding-top:8px}
+.hero .n{font-weight:900;letter-spacing:-.05em;font-size:clamp(110px,36vw,176px);line-height:1}
+.hero .label{margin-top:8px}
+.stat{padding-block:16px}
+.stat .n{font-weight:800;letter-spacing:-.04em;font-size:clamp(56px,17vw,80px);line-height:1}
+.stat .label{margin-top:8px}
+.foot{padding-top:40px;padding-bottom:calc(48px + env(safe-area-inset-bottom,0px));display:flex;gap:24px}
+.foot button{font-weight:600;font-size:15px;line-height:24px;color:var(--accent)}
+.next{display:block;margin-top:24px;color:var(--accent);font-weight:700;letter-spacing:-.03em;font-size:clamp(25px,7vw,31px);line-height:1}
+.type-row{display:flex;justify-content:space-between;align-items:baseline;gap:16px}
+.q{font-weight:800;letter-spacing:-.03em;font-size:clamp(27px,8vw,37px);line-height:1.1;color:var(--ink);margin-top:16px}
+.opts{margin-top:40px}
+.opt{display:block;width:100%;text-align:left;padding-block:16px;color:var(--accent);font-weight:600;letter-spacing:-.01em;font-size:clamp(19px,5.2vw,23px);line-height:1.25}
+.opt.correct{color:var(--ink);font-weight:700}
+.opt.wrong{color:var(--muted);text-decoration:line-through;text-decoration-thickness:1px}
+.fb{margin-top:24px}
+.fb .verdict{font-weight:800;font-size:16px;line-height:24px}
+.fb.ok .verdict{color:var(--accent)}
+.fb.no .verdict{color:var(--ink)}
+.fb-en{margin-top:8px;color:var(--ink);font-weight:600;font-size:16px;line-height:20px}
+.fb .fb-ru{margin-top:4px;font-size:14px;line-height:18px}
+.fixline{margin-top:40px;font-weight:700;letter-spacing:-.02em;font-size:clamp(22px,6vw,28px);line-height:1.35;color:var(--ink)}
+.choice{color:var(--accent);font-weight:700}
+.choice.sel,.choice.correct{color:var(--ink)}
+.choice.wrong{color:var(--muted);text-decoration:line-through;text-decoration-thickness:1px}
+.slash{color:var(--muted);font-weight:400;padding:0 6px}
+.build{margin-top:40px;min-height:52px;display:flex;flex-wrap:wrap;gap:8px;align-content:flex-start;padding-bottom:16px;border-bottom:1.5px solid var(--muted)}
+.build:empty::before{content:"Tap the words in order";color:var(--muted);font-weight:400;font-size:14px}
+.bank{margin-top:16px;display:flex;flex-wrap:wrap;gap:8px}
+.tile{border:1.5px solid var(--ink);padding:7px 12px;font-weight:600;font-size:15px;letter-spacing:-.01em}
+.tile.used{opacity:.25;pointer-events:none}
+.tmpl{margin-top:24px;color:var(--muted);font-weight:500;font-size:15px;line-height:24px}
+.ta{margin-top:16px;width:100%;min-height:96px;border:1.5px solid var(--ink);background:transparent;color:var(--ink);font-family:inherit;font-size:16px;line-height:24px;padding:12px;resize:vertical}
+.ta:focus{outline:2px solid var(--accent);outline-offset:1px}
+.self{margin-top:24px}
+.chk{display:flex;gap:12px;align-items:flex-start;padding-block:10px;width:100%;text-align:left}
+.chk .box{flex:none;width:18px;height:18px;border:1.5px solid var(--ink);margin-top:2px}
+.chk.on .box{background:var(--ink)}
+.chk .t{font-size:15px;line-height:20px}
+.chk .t .ru{display:block;margin-top:2px}
+.model{margin-top:24px}
+.model .m-en{font-weight:600;font-size:16px;line-height:22px;color:var(--ink)}
+.card{padding-top:8px}
+.card .pos{margin-top:0}
+.card .word{font-weight:900;letter-spacing:-.04em;font-size:clamp(44px,13vw,76px);line-height:1;color:var(--ink);margin-top:8px}
+.card .reveal{display:block;margin-top:32px;color:var(--accent);font-weight:700;letter-spacing:-.03em;font-size:clamp(25px,7vw,31px);line-height:1}
+.card .def{margin-top:32px;font-weight:600;font-size:clamp(19px,5vw,22px);line-height:1.2;color:var(--ink)}
+.card .ex{margin-top:24px;font-size:16px;line-height:24px;color:var(--ink);max-width:46ch}
+.card .ex em{font-style:normal;color:var(--accent);font-weight:600}
+.card .rate{margin-top:40px;display:flex;gap:28px}
+.card .rate button{color:var(--accent);font-weight:700;letter-spacing:-.02em;font-size:clamp(20px,6vw,26px);line-height:1;text-align:left}
+.card .rate button .iv{display:block;color:var(--muted);font-weight:600;font-size:12px;letter-spacing:.08em;line-height:16px;margin-top:8px}
+.stitle{font-weight:800;letter-spacing:-.03em;font-size:clamp(32px,10vw,40px);line-height:1;margin-bottom:24px}
+.srow{display:flex;justify-content:space-between;align-items:center;gap:16px;padding-block:20px}
+.srow-l{font-weight:600;font-size:17px;line-height:24px;color:var(--ink)}
+.toggle{display:flex;gap:16px}
+.toggle button{font-weight:700;font-size:16px;color:var(--muted)}
+.toggle button.on{color:var(--ink)}
+.slink{color:var(--accent);font-weight:600;font-size:16px}
+</style>
+
+<section class="poster pad" id="onb1">
+  <div class="p-top"><div class="p-label">Design Speak</div></div>
+  <div class="p-mid"><div class="o-weak" id="oWeak"></div><div class="o-strong" id="oStrong"></div></div>
+  <div class="p-bot"><button class="w-continue" id="pitchNext">Continue&nbsp;→</button></div>
+</section>
+<section class="poster pad" id="onb2" hidden>
+  <div class="p-top"><div class="p-label">Design Speak</div></div>
+  <div class="p-mid"><div class="o-q">Want hints in Russian?</div><div class="o-q-ru">Желаете добавить подсказки на русском?</div></div>
+  <div class="p-bot"><button class="p-opt" data-ru="0">No</button><button class="p-opt" data-ru="1">Yes</button></div>
+</section>
+<section class="poster pad" id="splash" hidden>
+  <div class="p-top"><div class="w-n tnum" id="streakN">1</div><div class="p-label">DAYS</div></div>
+  <div class="p-mid"><p class="w-q" id="quoteText"></p><p class="w-cite p-label" id="quoteCite"></p></div>
+  <div class="p-bot"><button class="w-continue" data-go="app">Continue&nbsp;→</button></div>
+</section>
+
+<div class="app" id="app" hidden>
+  <nav class="pivot pad">
+    <button data-tab="learn" aria-current="true">Learn</button>
+    <button data-tab="cards">Cards</button>
+    <button data-tab="progress">Progress</button>
+  </nav>
+  <main class="pad">
+    <section id="panel-learn"></section>
+    <section id="panel-cards" hidden>
+      <div class="card" id="cardReview">
+        <div class="pos label" id="cPos"></div>
+        <div class="word" id="cWord"></div>
+        <button class="reveal" id="reveal">Reveal&nbsp;→</button>
+        <div class="bk" id="bk" hidden>
+          <div class="def" id="cDef"></div>
+          <div class="ru" id="cDefRu"></div>
+          <div class="ex" id="cEx"></div>
+          <div class="ru" id="cExRu"></div>
+          <div class="rate">
+            <button data-r="again">Again<span class="iv tnum">10 MIN</span></button>
+            <button data-r="good">Good<span class="iv tnum">1 DAY</span></button>
+            <button data-r="easy">Easy<span class="iv tnum">4 DAYS</span></button>
+          </div>
+        </div>
+      </div>
+      <div id="cardsDone" hidden>
+        <div class="q">All caught up.</div>
+        <div class="ru">На сегодня карточки закончились.</div>
+        <button class="next" id="cardsRestart">Review again&nbsp;→</button>
+      </div>
+    </section>
+    <section id="panel-progress" hidden></section>
+  </main>
+  <div class="foot pad"><button data-go="settings">Settings</button></div>
+</div>
+
+<div class="screen pad" id="lesson" hidden>
+  <button class="back" data-back="learn">←&nbsp;Back</button>
+  <main id="lessonMain"></main>
+</div>
+
+<div class="screen pad" id="settings" hidden>
+  <button class="back" data-back="learn">←&nbsp;Back</button>
+  <main>
+    <div class="stitle">Settings</div>
+    <div class="srow"><span class="srow-l">Russian hints</span>
+      <span class="toggle" id="tgRu"><button data-v="0">No</button><button data-v="1" class="on">Yes</button></span></div>
+    <div class="srow"><span class="srow-l">Theme</span>
+      <span class="toggle" id="tgTheme"><button data-v="light" class="on">Light</button><button data-v="dark">Dark</button></span></div>
+    <div class="srow"><span class="srow-l">Backup progress</span><button class="slink">Export&nbsp;→</button></div>
+    <div class="srow"><span class="srow-l">Reset (testing)</span><button class="slink" id="resetBtn">Reset&nbsp;→</button></div>
+  </main>
+</div>
+
+<script>
+/* ================= content (real, per unit) ================= */
+const LEVELS=[{tag:"A",name:"About yourself",total:4},{tag:"B",name:"Language of decisions",total:5},{tag:"C",name:"Whole project",total:8}];
+const TOTAL_UNITS=17;
+function P(q,qru,opts,fe,fr){return {q,qru,opts,fe,fr};}
+function O(t,ok){return {t,ok};}
+const C={
+1:{lvl:"A",t:"Background",s:"Represent yourself as a designer",
+ pick:P("You want to say you've been a product designer for five years. Which sounds best?","Ты хочешь сказать, что работаешь продуктовым дизайнером пять лет. Как звучит лучше?",
+ [O("I've been working as a product designer for five years, mostly on fintech apps.",1),O("I work as product designer five years.",0),O("I am product designer since five years.",0)],
+ "For ongoing experience use the ready phrase “I've been ___ for ___”; put “a” before the role.","Для длящегося опыта — готовая фраза «I've been ___ for ___»; перед ролью — «a»."),
+ fix:{s:"I study architecture before I move into design.",b:[["study","studied"],["move","moved"]],he:"That part of your life is over — past simple in both parts.",hr:"Этот этап завершён — past simple в обеих частях."},
+ asm:{ru:"Я продуктовый дизайнер в финтех-стартапе.",tiles:["I'm","a product designer","at","a fintech startup"]},
+ free:{t:"Introduce yourself as a designer in 2–3 sentences: your role, how long you've been doing it, and what your background gives your work.",tr:"Представься как дизайнер в 2–3 предложениях: роль, сколько лет в профессии и что твой бэкграунд даёт твоей работе.",tmpl:"I'm a ___ at ___. I've been ___ for ___. Before I moved into design, I ___, so ___.",m:"I'm a product designer at a fintech startup. I've been designing mobile apps for about four years. Before I moved into design, I worked as a frontend developer, so I can talk to engineers in their language.",cl:[["Article before the role (a / an)","Артикль перед ролью (a / an)"],["Uses “I've been ___ for ___” for your experience","Использована фраза «I've been ___ for ___»"],["Past simple for your finished background","Past simple для завершённого прошлого"]]},
+ cards:[{w:"background",pos:"noun",def:"your education and past work experience",ru:"бэкграунд, предыдущий опыт или образование",ex:"I have a background in architecture, so I always start with the structure of a screen.",exru:"У меня архитектурный бэкграунд, поэтому я начинаю со структуры экрана."},
+ {w:"own",pos:"verb",def:"to be fully responsible for a part of the product",ru:"полностью отвечать за часть продукта",ex:"I own the onboarding flow, from research to final handoff.",exru:"Я отвечаю за онбординг целиком — от исследования до передачи в разработку."}]},
+2:{lvl:"A",t:"Path into design",s:"How you got here",
+ pick:P("You started with freelance projects. How do you say it?","Ты начинал с фриланс-проектов. Как это сказать?",
+ [O("I got into design through freelance projects, so I learned to talk to real clients early.",1),O("I came to design from freelance.",0),O("I start design with freelance and it was important experience.",0)],
+ "“Got into design” is natural, and the strong version says what freelancing gave you.","«Got into design» — естественно, а сильный вариант говорит, что дал фриланс."),
+ fix:{s:"I teach English at a school before I switch to design.",b:[["teach","taught"],["switch","switched"]],he:"Past simple. “Teach” is irregular: taught, not “teached”.",hr:"Past simple. «Teach» неправильный: taught, а не «teached»."},
+ asm:{ru:"Я пришёл в дизайн через фриланс-проекты.",tiles:["I got","into design","through","freelance projects"]},
+ free:{t:"Tell your path into design in 2–3 sentences: what you did before, how you learned, and what your first design job gave you.",tr:"Расскажи свой путь в дизайн: чем занимался раньше, как учился и что дала первая работа.",tmpl:"Before design, I ___. I got into design ___. My first design job was ___, where I learned to ___.",m:"Before design, I taught English at a school. I got into design after a UX bootcamp, which I did to learn the full process. My first design job was at a small agency, where I learned to explain my decisions to clients.",cl:[["Past simple for every step","Past simple для каждого шага истории"],["Irregular verbs correct (took, got, left, taught…)","Неправильные глаголы верные"],["At least one time marker (ago / in 2020 / after)","Хотя бы один маркер времени"]]},
+ cards:[{w:"self-taught",pos:"adjective",def:"having learned a skill on your own, without formal education",ru:"самоучка",ex:"I'm a self-taught designer — I learned from online courses and real projects.",exru:"Я дизайнер-самоучка: учился по онлайн-курсам и на реальных проектах."},
+ {w:"pivot (to)",pos:"verb",def:"to change direction, for example to a new career",ru:"резко сменить направление карьеры",ex:"I pivoted to UX after five years in journalism.",exru:"Я перешёл в UX после пяти лет в журналистике."}]},
+3:{lvl:"A",t:"What inspires me",s:"Influences, references, taste",
+ pick:P("You admire Swiss graphic design. Which sounds best?","Тебе нравится швейцарский графический дизайн. Как звучит лучше?",
+ [O("I'm inspired by Swiss graphic design, especially its strict grids, so I always start a layout with a grid.",1),O("I inspire by Swiss design.",0),O("Swiss design is very important and beautiful for me.",0)],
+ "“I'm inspired by” — “I inspire” means you inspire others. Name the detail and how it shows up in your work.","«I'm inspired by»: «I inspire» значит, что ты вдохновляешь других. Назови деталь и как она проявляется."),
+ fix:{s:"I discover editorial design when I work at a magazine.",b:[["discover","discovered"],["work","worked"]],he:"You're telling when it happened — past simple.",hr:"Ты рассказываешь, когда это случилось, — past simple."},
+ asm:{ru:"Меня вдохновляет швейцарский графический дизайн.",tiles:["I'm","inspired","by","Swiss","graphic design"]},
+ free:{t:"Name one source of inspiration and say what exactly you took from it for your work.",tr:"Назови один источник вдохновения и скажи, что именно ты из него взял для работы.",tmpl:"I'm inspired by ___, especially ___. It taught me to ___, so ___.",m:"I'm inspired by editorial design, especially the way magazines mix text and images. It taught me to give long pages a clear rhythm, so I always plan where the reader can pause.",cl:[["“Inspired by” / “ideas from” with the right preposition","«Inspired by» / «ideas from» с верным предлогом"],["Names a specific detail, not just the source","Названа конкретная деталь"],["Past simple for what it taught you","Past simple для того, чему научило"]]},
+ cards:[{w:"draw on",pos:"phrasal verb",def:"to use something as a source of ideas or experience",ru:"опираться на, черпать из",ex:"For this campaign, I drew on old posters — bold shapes and only two colours.",exru:"Для этой кампании я опирался на старые плакаты — смелые формы и два цвета."},
+ {w:"restraint",pos:"noun",def:"the quality of not using more than you need",ru:"сдержанность",ex:"What I love about Japanese packaging is its restraint — one colour, one message.",exru:"В японской упаковке я люблю сдержанность: один цвет, одно сообщение."}]},
+4:{lvl:"A",t:"How I work",s:"Process and principles",
+ pick:P("You're asked how you start a project. Which sounds best?","Тебя спрашивают, с чего ты начинаешь проект. Как звучит лучше?",
+ [O("I usually start with a short kickoff to agree on the goal with the team.",1),O("I am starting every project from the research.",0),O("First I make research because it is important.",0)],
+ "Present simple for habits: “I start”, not “I am starting”. “Start WITH”. The strong version names the purpose.","Для привычек present simple: «I start». «Start WITH». Сильный вариант называет цель."),
+ fix:{s:"On my last project, I start with five user interviews.",b:[["start","started"]],he:"“On my last project” — one real, finished project. Past simple.",hr:"«On my last project» — один завершённый проект. Past simple."},
+ asm:{ru:"Обычно я начинаю проект с исследования.",tiles:["I usually","start","a project","with","research"]},
+ free:{t:"Describe your process in three steps, then give one real example from your last project.",tr:"Опиши процесс в трёх шагах, потом приведи реальный пример с последнего проекта.",tmpl:"I usually start with ___ to ___. Then I ___ before I ___. On my last project, I ___.",m:"I usually start with a short kickoff to agree on the goal. Then I sketch a few rough options and test them with users before I move to Figma. On my last project, I tested three paper prototypes in the first week, so we picked a direction early.",cl:[["Present simple for your usual process","Present simple для привычного процесса"],["Sequence words (first / then / before)","Слова последовательности"],["Past simple for the real example","Past simple для реального примера"]]},
+ cards:[{w:"workflow",pos:"noun",def:"the order of steps you usually follow to get work done",ru:"рабочий процесс",ex:"My workflow is simple: research, rough sketches, a quick test, then high-fidelity screens.",exru:"Мой процесс простой: исследование, скетчи, быстрый тест и только потом детальные экраны."},
+ {w:"kickoff",pos:"noun",def:"the first meeting of a project where the team agrees on goals",ru:"стартовая встреча проекта",ex:"At the kickoff, we agreed that success means fewer support tickets, not a prettier app.",exru:"На кикоффе мы договорились, что успех — меньше обращений, а не более красивое приложение."}]},
+5:{lvl:"B",t:"Visual decisions",s:"Colour, contrast, weight",
+ pick:P("You made the main button a bright colour. Which sounds best?","Ты сделал главную кнопку яркой. Как звучит лучше?",
+ [O("I made the button an accent colour so that it stands out as the primary action.",1),O("I make this button colorful and user see it.",0),O("This button is color because it is important button.",0)],
+ "Past simple “made” + “so that it stands out as the primary action” names the result and the role.","Past simple «made» + «so that it stands out…» называет результат и роль кнопки."),
+ fix:{s:"I use more contrast because the text is hard to read.",b:[["use","used"],["is","was"]],he:"You're telling what you DID and why — past simple in both parts.",hr:"Ты рассказываешь, что СДЕЛАЛ и почему, — past simple в обеих частях."},
+ asm:{ru:"Я сделал заголовок жирным, чтобы он сразу бросался в глаза.",tiles:["I made","the heading","bold","so that","it catches the eye","right away"]},
+ free:{t:"Open your own screen. Pick one visual decision and explain it in English.",tr:"Открой свой экран. Выбери одно визуальное решение и объясни его на английском.",tmpl:"I used ___ to ___ because ___.",m:"I used a bright accent colour on the CTA to draw the eye, because it's the primary action.",cl:[["Past tense used","Использовано прошедшее время"],["States a purpose (so / to)","Есть цель (so / to)"],["Names the element's role","Названа роль элемента"]]},
+ cards:[{w:"emphasize",pos:"verb",def:"to make something more noticeable or important",ru:"выделить, сделать акцент",ex:"I emphasized the total price so that it's the first thing users check before paying.",exru:"Я выделил итоговую цену, чтобы её проверяли первой перед оплатой."},
+ {w:"tone down",pos:"phrasal verb",def:"to make something less bright, loud or strong",ru:"приглушить, сделать спокойнее",ex:"I toned down the background colours so that the button stands out.",exru:"Я приглушил цвета фона, чтобы кнопка выделялась."}]},
+6:{lvl:"B",t:"Hierarchy & attention",s:"What users look at first",
+ pick:P("You made the total price the most visible element. Which sounds best?","Ты сделал итоговую цену самым заметным элементом. Как звучит лучше?",
+ [O("I made the total price the biggest element so that it's the first thing users see.",1),O("I did the price more big because it is important.",0),O("The price is first thing what user see.",0)],
+ "“Bigger / the biggest”, not “more big”. “Made”, not “did”. “The first thing users see” has no “what”.","«Bigger / the biggest», не «more big». «Made», не «did». В «the first thing users see» нет «what»."),
+ fix:{s:"Users notice the banner first, so I move the search bar higher.",b:[["notice","noticed"],["move","moved"]],he:"You're describing what happened in a test and what you did — past simple.",hr:"Ты описываешь, что было на тесте и что ты сделал, — past simple."},
+ asm:{ru:"Я сделал итоговую цену самым крупным элементом.",tiles:["I made","the total price","the largest","element"]},
+ free:{t:"Open one of your screens. Explain what users see first, what you made quieter, and why.",tr:"Открой экран. Объясни, что пользователь видит первым, что ты сделал тише и почему.",tmpl:"I made ___ the first thing users see, because ___. I made ___ less prominent so that ___.",m:"I made the next payment date the first thing users see, because that's why people open the app. I made the promo banner less prominent so that it doesn't compete with the payment details.",cl:[["Past simple for your decisions","Past simple для твоих решений"],["Names what comes first and what is quieter","Названо, что первое, а что тише"],["Comparatives correct (bigger, less prominent)","Сравнения верные (bigger, less prominent)"]]},
+ cards:[{w:"focal point",pos:"noun",def:"the place on a screen where the eye goes first",ru:"смысловой центр, точка фокуса",ex:"I made the hero image the focal point to show the product in use.",exru:"Я сделал главное изображение точкой фокуса, чтобы показать продукт в действии."},
+ {w:"de-clutter",pos:"verb",def:"to remove things that are not needed so the important ones are easier to see",ru:"разгрузить, убрать визуальный шум",ex:"I de-cluttered the dashboard and kept only the four numbers managers check daily.",exru:"Я разгрузил дашборд и оставил четыре цифры, которые смотрят каждый день."}]},
+7:{lvl:"B",t:"Cause & effect",s:"If we change X, Y happens",
+ pick:P("Users missed the coupon field. Explain why.","Пользователи не замечали поле промокода. Объясни почему.",
+ [O("Users missed the coupon field because it looked like plain text.",1),O("Users missed the coupon field because of it looked like text.",0),O("Users don't see coupon field, it is because design.",0)],
+ "“Because” + a clause; “because of” + a noun only. Name the exact visual cause.","«Because» + предложение; «because of» — только с существительным. Назови точную причину."),
+ fix:{s:"Users miss the button because it looks disabled.",b:[["miss","missed"],["looks","looked"]],he:"You're reporting what happened in testing — past simple in both parts.",hr:"Ты рассказываешь, что было на тесте, — past simple в обеих частях."},
+ asm:{ru:"Длинная форма привела к большому оттоку.",tiles:["The long form","led to","a lot of","drop-offs"]},
+ free:{t:"Take one problem. Name its cause, your change and the effect. Then add one prediction for your next change.",tr:"Возьми проблему. Назови причину, изменение и эффект. Потом добавь прогноз для следующего изменения.",tmpl:"Users ___ because ___. I ___, so ___. If we ___, ___ will ___.",m:"Users ordered the wrong size because the size chart was hidden in a tab. I moved the chart next to the size picker, so returns went down. If we add the same chart to the cart, fewer people will return items.",cl:[["Real events in past simple with because / so — no “if”","Реальное — past simple с because / so, без «if»"],["“Because + clause” or “because of + noun”","«Because + предложение» или «because of + существительное»"],["Prediction: “If we + present, … will …” (no “if we will”)","Прогноз: «If we + настоящее, … will…»"]]},
+ cards:[{w:"lead to",pos:"phrasal verb",def:"to cause something to happen as a result (past: led to)",ru:"приводить к",ex:"The hidden delivery fee led to a lot of abandoned carts.",exru:"Скрытая стоимость доставки привела к множеству брошенных корзин."},
+ {w:"friction",pos:"noun",def:"anything that slows users down or makes a task harder than it needs to be",ru:"трение, лишние препятствия",ex:"Asking for a phone number added friction, so we made it optional.",exru:"Запрос номера создавал трение, поэтому мы сделали поле необязательным."}]},
+8:{lvl:"B",t:"Past tense of actions",s:"What you did, step by step",
+ pick:P("You did interviews to learn why users cancelled. Which sounds best?","Ты провёл интервью, чтобы понять, почему пользователи отменяли. Как звучит лучше?",
+ [O("I ran five interviews to find out why users cancelled their subscriptions.",1),O("I runned five interviews.",0),O("I made five interviews for understand why users cancel.",0)],
+ "“Run” is irregular: ran. You “run” interviews, not “make” them. Purpose is “to + verb”.","«Run» неправильный: ran. Интервью «run», а не «make». Цель — «to + глагол»."),
+ fix:{s:"I choose a simpler layout and draw three versions of it.",b:[["choose","chose"],["draw","drew"]],he:"Both verbs are irregular: choose → chose, draw → drew.",hr:"Оба глагола неправильные: choose → chose, draw → drew."},
+ asm:{ru:"Сначала я провёл интервью, потом нарисовал скетчи.",tiles:["First,","I ran","interviews,","then I drew","sketches"]},
+ free:{t:"Tell 3–4 things you did on your last project, in order — and one thing you decided NOT to change.",tr:"Расскажи 3–4 вещи, которые сделал на последнем проекте, по порядку — и одну, которую решил НЕ менять.",tmpl:"First, I ___ to ___. Then I ___. I didn't ___, because ___.",m:"First, I looked at the analytics to find where users dropped off. Then I ran five usability tests and rewrote the error messages on the payment step. I didn't change the navigation, because users already knew it well.",cl:[["Every action verb in past simple","Все глаголы действия в past simple"],["Irregular verbs correct (ran, wrote, drew, chose…)","Неправильные глаголы верные"],["“Didn't + base form” for what you didn't change","«Didn't + начальная форма»"]]},
+ cards:[{w:"simplify",pos:"verb",def:"to make something easier to use or understand",ru:"упростить",ex:"I simplified the filters so that new users don't get lost in thirty options.",exru:"Я упростил фильтры, чтобы новички не терялись в тридцати вариантах."},
+ {w:"streamline",pos:"verb",def:"to make a process simpler and faster by removing unnecessary steps",ru:"оптимизировать, убрать лишние шаги",ex:"We streamlined onboarding so that new users reach their first task in under a minute.",exru:"Мы убрали лишнее из онбординга, чтобы новички добирались до первой задачи за минуту."}]},
+9:{lvl:"B",t:"Before / after",s:"What got better for users",
+ pick:P("The old form was much longer. Which sounds best?","Старая форма была гораздо длиннее. Как звучит лучше?",
+ [O("Before, users had to fill in twelve fields. Now they only need to enter their email.",1),O("Before users must fill twelve fields.",0),O("Earlier users was filling twelve fields, now is one.",0)],
+ "“Had to” for the old obligation; “must” is present only. Old = past, new = present.","«Had to» для прошлой необходимости; «must» — только настоящее. Старое — прошедшее, новое — настоящее."),
+ fix:{s:"Before, the form has twelve fields, and nobody finishes it.",b:[["has","had"],["finishes","finished"]],he:"“Before” = the old version — past simple.",hr:"«Before» — старая версия, past simple."},
+ asm:{ru:"Раньше пользователям приходилось звонить в поддержку.",tiles:["Before,","users","had to","call support"]},
+ free:{t:"Take something you redesigned. Describe the old version, the new one, and what got better for users.",tr:"Возьми то, что переделывал. Опиши старую версию, новую и что стало лучше для пользователей.",tmpl:"Before, ___. Users had to ___. Now ___, so ___.",m:"Before, the settings were split across three screens. Users had to guess where each option was. Now everything is on one page with clear sections, so people find what they need without asking support.",cl:[["Past simple for the old version","Past simple для старой версии"],["Present simple for the new version","Present simple для новой версии"],["Comparatives correct (fewer steps, faster)","Сравнения верные (fewer steps, faster)"]]},
+ cards:[{w:"previously",pos:"adverb",def:"before now; in the old version",ru:"раньше, ранее",ex:"Previously, users couldn't edit an order; now they can change it until it ships.",exru:"Раньше пользователи не могли изменить заказ, теперь могут менять его до отправки."},
+ {w:"cluttered",pos:"adjective",def:"full of too many things, so it's hard to find what matters",ru:"перегруженный, захламлённый",ex:"The old home screen looked cluttered, so I removed everything users didn't tap in a month.",exru:"Старый главный экран выглядел перегруженным, и я убрал всё, на что не нажимали за месяц."}]},
+10:{lvl:"C",t:"Client & context",s:"Who it was for",
+ pick:P("You worked for a bank whose app was used by older people. Which sounds best?","Ты работал с банком, приложением которого пользовались люди постарше. Как звучит лучше?",
+ [O("The client was a regional bank, and its users were mostly people over fifty.",1),O("The client was bank and clients were old people.",0),O("Our client is bank, the users of the client are pensioners.",0)],
+ "The client is the company that hired you; users are the people using the app. Don't call users “clients”.","Client — компания, которая тебя наняла; users — те, кто пользуется. Не называй пользователей «clients»."),
+ fix:{s:"The client is a logistics startup that wants to replace paper invoices.",b:[["is","was"],["wants","wanted"]],he:"In a case study the project is in the past — past simple, even if the company still exists.",hr:"В кейсе проект — в прошлом, past simple, даже если компания существует."},
+ asm:{ru:"Заказчиком был региональный банк.",tiles:["The client","was","a regional bank"]},
+ free:{t:"Open one of your case studies with context: the client, the users, and your role.",tr:"Начни кейс с контекста: заказчик, пользователи и твоя роль.",tmpl:"The client was ___ that wanted to ___. Its users were mostly ___, who ___. I joined the project as ___.",m:"The client was a furniture delivery startup that wanted to cut the number of missed deliveries. Its users were mostly busy parents, who booked deliveries late at night. I joined the project as the only designer.",cl:[["Client and users are clearly different","Заказчик и пользователи чётко разведены"],["Past simple for the project story","Past simple для истории проекта"],["Names your role and a shared goal (to…)","Названы роль и общая цель"]]},
+ cards:[{w:"stakeholder",pos:"noun",def:"a person who has an interest in a project and influences decisions about it",ru:"стейкхолдер, заинтересованное лицо",ex:"The main stakeholder was the head of sales, so I showed her each option early.",exru:"Главным стейкхолдером была руководитель продаж, поэтому я рано показывал ей каждый вариант."},
+ {w:"legacy",pos:"adjective",def:"old but still in use, and often hard to change (about systems)",ru:"унаследованный, старый (о системе)",ex:"The bank ran on a legacy system, so every small change took weeks.",exru:"Банк работал на старой системе, поэтому каждое изменение занимало недели."}]},
+11:{lvl:"C",t:"Task & JTBD",s:"What users were trying to get done",
+ pick:P("The client asked for a redesign, but users needed something else. Which sounds best?","Заказчик просил редизайн, но пользователям нужно было другое. Как звучит лучше?",
+ [O("The client wanted us to redesign the app, but users mainly needed a faster way to repeat orders.",1),O("The client wanted that we redesign the app.",0),O("Client wanted redesign, but users want other.",0)],
+ "“Wanted us to redesign”, never “wanted that we…”. Name the real need precisely.","«Wanted us to redesign», никогда «wanted that we…». Точно назови реальную потребность."),
+ fix:{s:"Users try to compare plans, but the table is too long.",b:[["try","tried"],["is","was"]],he:"Research findings from the past — past simple. Try → tried (y → ied).",hr:"Выводы прошлого исследования — past simple. Try → tried."},
+ asm:{ru:"Нашей задачей было ускорить запись.",tiles:["Our task","was","to make","booking","faster"]},
+ free:{t:"State the task of one of your projects and write one JTBD statement for its users.",tr:"Сформулируй задачу проекта и напиши одну формулировку JTBD для пользователей.",tmpl:"Our task was to ___ so that ___. When ___, I want to ___, so I can ___.",m:"Our task was to make repeat orders faster so that regular customers ordered more often. When I run out of coffee beans, I want to reorder my usual pack in one tap, so I can get on with my morning.",cl:[["“Our task was to + verb” with a business reason","«Our task was to + глагол» с бизнес-причиной"],["JTBD formula complete (When / I want to / so I can)","Формула JTBD полная"],["Users, not clients, in the user part","В части про пользователей — users, а не clients"]]},
+ cards:[{w:"pain point",pos:"noun",def:"a specific problem that stops users from reaching their goal",ru:"боль, проблемное место",ex:"The biggest pain point was waiting for a delivery without knowing when it would arrive.",exru:"Главной болью было ждать доставку, не зная, когда она приедет."},
+ {w:"workaround",pos:"noun",def:"an unofficial way users solve a problem the product doesn't solve for them",ru:"обходной путь, костыль",ex:"Many users kept receipts in a notes app as a workaround.",exru:"Многие хранили чеки в заметках — такой обходной путь."}]},
+12:{lvl:"C",t:"Constraints",s:"Time, budget, tech, rules",
+ pick:P("You had very little time. Which sounds best?","У тебя было очень мало времени. Как звучит лучше?",
+ [O("We only had six weeks, so we focused on the core booking flow.",1),O("We had very hard deadline and we did only main flow.",0),O("Time was little, so we must to cut.",0)],
+ "“We only had…” is natural. “Must to” is never correct, and “must” has no past — use “had to”.","«We only had…» — естественно. «Must to» неверно, у «must» нет прошедшего — «had to»."),
+ fix:{s:"We don't have time for research, so we use data from support tickets.",b:[["don't","didn't"],["use","used"]],he:"Negative past: “didn't have”. “Have” stays in its base form.",hr:"Отрицание в прошлом: «didn't have». «Have» в начальной форме."},
+ asm:{ru:"У нас было всего шесть недель.",tiles:["We","only","had","six weeks"]},
+ free:{t:"Describe one or two constraints from your project and how your design dealt with them.",tr:"Опиши одно-два ограничения проекта и как с ними справился твой дизайн.",tmpl:"We only had ___, so we ___. We couldn't ___, so I ___.",m:"We only had one sprint, so we reused existing components. We couldn't send push notifications because the app didn't have permission yet, so I designed reminders inside the app.",cl:[["Past forms of limits (had to / couldn't / weren't allowed to)","Прошедшие формы ограничений"],["No “must” for the past","Нет «must» для прошлого"],["Names your design response (so I / so we)","Названо твоё дизайн-решение"]]},
+ cards:[{w:"constraint",pos:"noun",def:"something that limits what you can do — time, money, technology, rules",ru:"ограничение",ex:"The biggest constraint was the old payment system, so I designed around what it could do.",exru:"Главным ограничением была старая платёжная система, и я проектировал вокруг её возможностей."},
+ {w:"feasible",pos:"adjective",def:"possible to build with the time, money and technology you have",ru:"реализуемый, выполнимый",ex:"Before the review, I checked with the developers that the animation was feasible.",exru:"Перед ревью я уточнил у разработчиков, реализуема ли анимация."}]},
+13:{lvl:"C",t:"Hypothesis",s:"What you expected and tested",
+ pick:P("You thought showing the price earlier would help. Which sounds best?","Вы считали, что ранний показ цены поможет. Как звучит лучше?",
+ [O("Our hypothesis was that showing the price earlier would reduce drop-offs at checkout.",1),O("Our hypothesis was that if we show price earlier, users will not leave.",0),O("We think that price is important and must be earlier.",0)],
+ "The formula: “Our hypothesis was that [change] would [result]” — a change and a measurable result.","Формула: «Our hypothesis was that [изменение] would [результат]»."),
+ fix:{s:"We run a one-week A/B test and measure the drop-off.",b:[["run","ran"],["measure","measured"]],he:"Past simple for what you did: run → ran (irregular), measure → measured.",hr:"Past simple для того, что вы делали: run → ran, measure → measured."},
+ asm:{ru:"Чтобы проверить это, мы запустили A/B-тест.",tiles:["To test this,","we ran","an A/B test"]},
+ free:{t:"Take one hypothesis from your project: what you changed, what you expected, and how you tested it.",tr:"Возьми одну гипотезу: что меняли, чего ожидали и как проверяли.",tmpl:"Our hypothesis was that ___ would ___. To test this, we ___. Success meant that ___.",m:"Our hypothesis was that showing the delivery fee earlier would reduce drop-offs at checkout. To test this, we ran a one-week A/B test. Success meant that at least 5% more users finished checkout.",cl:[["The formula “was that… would…”","Формула «was that… would…»"],["“Test”, not “check”; “ran a test”, not “made a test”","«Test», а не «check»; «ran a test»"],["A measurable expected result","Измеримый ожидаемый результат"]]},
+ cards:[{w:"assumption",pos:"noun",def:"something you believe is true without proof yet",ru:"допущение, предположение",ex:"Our biggest assumption was that users read the tooltips — the test showed they didn't.",exru:"Главное допущение было, что пользователи читают подсказки, — тест показал, что нет."},
+ {w:"insight",pos:"noun",def:"a new, useful understanding about users that changes how you design",ru:"инсайт, важный вывод",ex:"The key insight was that people didn't trust automatic payments, so we added a confirmation step.",exru:"Ключевой инсайт: люди не доверяли автоплатежам, поэтому мы добавили шаг подтверждения."}]},
+14:{lvl:"C",t:"Testing",s:"Method, task, what you saw",
+ pick:P("You tested with five users to find problems. Which sounds best?","Ты тестировал с пятью пользователями, чтобы найти проблемы. Как звучит лучше?",
+ [O("We ran five usability tests to see where new users got stuck.",1),O("We made testing on five respondents.",0),O("We tested with five people because testing is important.",0)],
+ "You “run” tests, not “make testing”. The strong version names what you wanted to learn.","Тесты «run», а не «make testing». Сильный вариант называет, что вы хотели узнать."),
+ fix:{s:"We run an A/B test for two weeks.",b:[["run","ran"]],he:"Run → ran (irregular).",hr:"Run → ran (неправильный)."},
+ asm:{ru:"Мы провели пять юзабилити-тестов.",tiles:["We ran","five","usability tests"]},
+ free:{t:"Describe one test from your project: the method, the task, what you saw, and what you changed.",tr:"Опиши один тест: метод, задание, что увидел и что изменил.",tmpl:"We ran ___ to ___. We asked participants to ___. ___ out of ___ participants ___, so we ___.",m:"We ran five usability tests to see where new users got stuck. We asked participants to change their delivery address. Four out of five tapped the logo to go back, so we added a clear back button.",cl:[["“Ran a test”, not “made a test”","«Ran a test», а не «made a test»"],["“Asked participants to + verb”","«Asked participants to + глагол»"],["A number (“X out of Y”)","Цифра («X out of Y»)"]]},
+ cards:[{w:"usability test",pos:"noun",def:"a session where real people try to do tasks with your design while you watch",ru:"юзабилити-тест",ex:"We ran five usability tests and found the same problem in four of them.",exru:"Мы провели пять юзабилити-тестов и в четырёх нашли одну и ту же проблему."},
+ {w:"finding",pos:"noun",def:"something you discovered through research or testing",ru:"вывод, находка",ex:"Our main finding was that people needed to see the total before they chose a plan.",exru:"Главный вывод: людям нужно видеть итоговую сумму до выбора тарифа."}]},
+15:{lvl:"C",t:"Results & metrics",s:"Numbers and what they meant",
+ pick:P("Conversion grew 12% after your change. Which sounds best?","Конверсия выросла на 12% после твоего изменения. Как звучит лучше?",
+ [O("The conversion rate went up by 12% after we simplified checkout.",1),O("Conversion increased on 12%.",0),O("Conversion became more on 12 percents.",0)],
+ "“By 12%”, never “on”. “Percent” has no plural. Link the number to your change with “after”.","«By 12%», никогда «on». У «percent» нет множественного. Связь с изменением через «after»."),
+ fix:{s:"Sign-ups grow by 20% in the first month.",b:[["grow","grew"]],he:"Grow → grew (irregular).",hr:"Grow → grew (неправильный)."},
+ asm:{ru:"Конверсия выросла на 12%.",tiles:["The conversion rate","went up","by","12%"]},
+ free:{t:"Report one or two results from your project with numbers, and say what they meant for the business or users.",tr:"Расскажи об одном-двух результатах в цифрах и что они дали бизнесу или пользователям.",tmpl:"___ went up / down by ___ after ___. This helped ___ ___.",m:"The conversion rate went up by 12% after we simplified checkout. Support tickets about payments dropped by half, which helped the support team save hours every week.",cl:[["A number with “by” or “from… to…”","Цифра с «by» или «from… to…»"],["Past simple of change verbs (went up, grew, dropped)","Past simple глаголов изменения"],["Says what it meant for the business or users","Сказано, что это дало бизнесу или пользователям"]]},
+ cards:[{w:"retention",pos:"noun",def:"how many users keep coming back to a product over time",ru:"удержание",ex:"Retention grew from 30% to 45% once new users got a clear first task.",exru:"Удержание выросло с 30% до 45%, когда новички стали получать понятную первую задачу."},
+ {w:"impact",pos:"noun",def:"a strong effect that something has on something else",ru:"влияние, эффект",ex:"The redesign had a clear impact on retention: more users came back in the second week.",exru:"Редизайн заметно повлиял на удержание: больше пользователей возвращались на второй неделе."}]},
+16:{lvl:"C",t:"Tradeoffs",s:"What you chose and gave up",
+ pick:P("You picked a standard date picker instead of a custom one. Which sounds best?","Ты выбрал стандартный выбор даты вместо кастомного. Как звучит лучше?",
+ [O("We chose a native date picker over a custom one because it was faster to build and more accessible.",1),O("We chose native picker than custom.",0),O("We took native picker because custom is long.",0)],
+ "“Choose X OVER Y” — “than” only follows comparatives. Give two concrete reasons.","«Choose X OVER Y»; «than» — только после сравнительной степени. Дай две конкретные причины."),
+ fix:{s:"We drop the animations to hit the deadline.",b:[["drop","dropped"]],he:"Past simple. Drop → dropped (double “p”).",hr:"Past simple. Drop → dropped (двойное «p»)."},
+ asm:{ru:"Мы выбрали скорость, а не визуальную доводку.",tiles:["We chose","speed","over","visual polish"]},
+ free:{t:"Describe one tradeoff from your project: what you chose, what you gave up, and why it was worth it.",tr:"Опиши компромисс: что выбрал, чем пожертвовал и почему это того стоило.",tmpl:"We chose ___ over ___ because ___. This meant ___, but ___. It was worth it because ___.",m:"We chose one long page over several short steps because users wanted to see everything before paying. This meant a heavier page on mobile, but fewer people dropped off. It was worth it because checkout completion went up.",cl:[["“Chose X over Y” or “decided to… instead of -ing”","«Chose X over Y» или «decided to… instead of -ing»"],["Names the cost honestly (This meant…)","Честно названа цена (This meant…)"],["Names the gain or justification","Назван выигрыш или обоснование"]]},
+ cards:[{w:"trade-off",pos:"noun",def:"a balance between two things you can't fully have at the same time",ru:"компромисс, баланс",ex:"The trade-off was less polish, but a month of real feedback.",exru:"Компромисс: меньше доводки, но месяц реального фидбэка."},
+ {w:"downside",pos:"noun",def:"the negative part of something that is mostly good",ru:"минус, недостаток",ex:"The downside was that power users lost some shortcuts, so we added them back later.",exru:"Минус в том, что опытные пользователи потеряли часть горячих клавиш, и мы их вернули."}]},
+17:{lvl:"C",t:"Reflection",s:"What you learned, what's next",
+ pick:P("You learned to involve developers early. Which sounds best?","Ты понял, что разработчиков надо подключать рано. Как звучит лучше?",
+ [O("I learned that I need to involve developers from day one, so now I invite them to the first sketch session.",1),O("I understood that developers are important.",0),O("I took a lesson that developers must be from the start.",0)],
+ "A lesson is strong when it changes your process. “Took a lesson” is a calque — say “learned”.","Урок силён, когда меняет процесс. «Took a lesson» — калька, правильно «learned»."),
+ fix:{s:"I realize too late that the PM and I have different goals.",b:[["realize","realized"],["have","had"]],he:"Both parts are about the past project — past simple.",hr:"Обе части — про прошлый проект, past simple."},
+ asm:{ru:"Хорошо сработало то, что мы рано тестировали.",tiles:["What","worked well","was","testing early"]},
+ free:{t:"Close one of your case studies: what worked, one thing you underestimated, and what you'll do differently next time.",tr:"Заверши кейс: что сработало, что недооценил и что сделаешь иначе в следующий раз.",tmpl:"What worked well was ___. I underestimated ___, so ___. Next time, I'll ___ to ___.",m:"What worked well was testing early with real users. I underestimated how hard the old data was to move, so the launch slipped by two weeks. Next time, I'll talk to the backend team in the first week to find risks like this early.",cl:[["Past simple for what happened (worked, underestimated, missed)","Past simple для того, что произошло"],["One honest mistake with its consequence","Одна честная ошибка с последствием"],["“Next time, I'll + verb” (no “to”)","«Next time, I'll + глагол» (без «to»)"]]},
+ cards:[{w:"takeaway",pos:"noun",def:"the main idea or lesson you keep after something",ru:"главный вывод, что вынес",ex:"My main takeaway was to share rough work early, so I now post drafts every week.",exru:"Мой главный вывод — показывать черновики рано, поэтому теперь я выкладываю их каждую неделю."},
+ {w:"in hindsight",pos:"expression",def:"looking back at a past situation with what you know now",ru:"оглядываясь назад, задним числом",ex:"In hindsight, the first version was too complex — users needed a tutorial just to start.",exru:"Оглядываясь назад, первая версия была слишком сложной: нужно было обучение, чтобы начать."}]}
+};
+const UNITS=Object.keys(C).map(k=>({id:+k,lvl:C[k].lvl,en:C[k].t,sub:C[k].s}));
+const IDIOMS=[
+ {w:"boil the ocean",pos:"idiom",def:"to try to do too much at once",ru:"объять необъятное · досл. «вскипятить океан»",ex:"Let’s not <em>boil the ocean</em> — ship the core flow first.",exru:"Давай не будем объять необъятное — сначала выкатим основной флоу."},
+ {w:"low-hanging fruit",pos:"idiom",def:"the easiest wins for clear value",ru:"простая задача с быстрым эффектом · досл. «низко висящий фрукт»",ex:"Fixing the contrast is <em>low-hanging fruit</em>.",exru:"Поправить контраст — это низко висящий фрукт."},
+ {w:"back to the drawing board",pos:"idiom",def:"to start again after a failed attempt",ru:"начать заново · досл. «обратно к чертёжной доске»",ex:"Users couldn’t find it, so it’s <em>back to the drawing board</em>.",exru:"Пользователи не нашли — придётся начинать заново."}
+];
+const REWRITES=[
+ {weak:"I did my work.",strong:"I redesigned checkout and cut drop-off by a third."},
+ {weak:"I made it look nice.",strong:"I set a clear hierarchy, so the price is the first thing users see."},
+ {weak:"I changed the button.",strong:"I made the primary action impossible to miss."},
+ {weak:"I did some research.",strong:"I ran five interviews and found why users abandoned sign-up."},
+ {weak:"I improved the screen.",strong:"I cut onboarding from six steps to three, so more users finish."}
+];
+const QUOTES=[
+ {t:"Styles come and go. Good design is a language, not a style.",a:"Massimo Vignelli"},
+ {t:"Design is not just what it looks like. Design is how it works.",a:"Steve Jobs"},
+ {t:"Good design is as little design as possible.",a:"Dieter Rams"},
+ {t:"The details are not the details. They make the design.",a:"Charles Eames"},
+ {t:"People ignore design that ignores people.",a:"Frank Chimero"}
+];
+
+/* ================= storage / state ================= */
+function sGet(k){try{return localStorage.getItem(k);}catch(e){return null;}}
+function sSet(k,v){try{localStorage.setItem(k,v);}catch(e){}}
+let S={done:{},cards:{}};
+try{const r=sGet('ds.state');if(r)S=Object.assign(S,JSON.parse(r));}catch(e){}
+S.done=S.done||{};S.cards=S.cards||{};
+function saveState(){sSet('ds.state',JSON.stringify(S));}
+const pad2=n=>n<10?'0'+n:''+n;
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function escReg(s){return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');}
+
+/* ================= screens ================= */
+const SCREENS=['onb1','onb2','splash','app','lesson','settings'];
+function show(id){SCREENS.forEach(s=>document.getElementById(s).hidden=(s!==id));window.scrollTo(0,0);}
+const tabs=document.querySelectorAll('.pivot button');
+function setTab(name){
+  tabs.forEach(x=>{ if(x.dataset.tab===name)x.setAttribute('aria-current','true'); else x.removeAttribute('aria-current'); });
+  ['learn','cards','progress'].forEach(p=>document.getElementById('panel-'+p).hidden=(p!==name));
+  if(name==='learn')renderLearn();
+  if(name==='cards')initCards();
+  if(name==='progress')renderProgress();
+}
+function openApp(tab){show('app');setTab(tab||'learn');}
+
+/* ================= Learn ================= */
+// state of a lesson: done | open | locked.
+// First lesson of every section is always open (begin anywhere, can skip A);
+// each later lesson opens only once the previous one in its section is done.
+function lessonState(u){
+  if(S.done[u.id])return 'done';
+  const ids=UNITS.filter(x=>x.lvl===u.lvl).map(x=>x.id);
+  const i=ids.indexOf(u.id);
+  if(i===0)return 'open';
+  return S.done[ids[i-1]]?'open':'locked';
+}
+function renderLearn(){
+  const wrap=document.getElementById('panel-learn');wrap.innerHTML='';let cur=null;
+  UNITS.forEach(u=>{
+    if(u.lvl!==cur){cur=u.lvl;const lv=LEVELS.find(l=>l.tag===u.lvl);
+      const h=document.createElement('div');h.className='level';h.innerHTML='<h2>'+u.lvl+'. '+lv.name+'</h2>';wrap.appendChild(h);}
+    const st=lessonState(u);
+    const b=document.createElement('button');b.className='unit '+st;
+    const arrow=(st==='open')?'&nbsp;<svg class="ar" viewBox="0 0 24 24"><path d="M4 12h15M13 6l6 6-6 6"/></svg>':'';
+    b.innerHTML='<div class="head">'+pad2(u.id)+'. '+esc(u.en)+arrow+'</div><div class="sub">'+esc(u.sub)+'</div>';
+    if(st==='locked')b.disabled=true;
+    else b.addEventListener('click',()=>openLesson(u.id));
+    wrap.appendChild(b);
+  });
+}
+
+/* ================= Progress ================= */
+function doneCount(){return UNITS.filter(u=>S.done[u.id]).length;}
+function renderProgress(){
+  const dc=doneCount();const pct=Math.round(dc/TOTAL_UNITS*100);const cards=Object.keys(S.cards).length;const streak=computeStreak();
+  let road='';
+  LEVELS.forEach(l=>{const d=UNITS.filter(u=>u.lvl===l.tag&&S.done[u.id]).length;
+    road+='<div class="unit static"><div class="head">'+l.tag+'. '+l.name+'</div><div class="sub">'+d+' / '+l.total+' units</div></div>';});
+  document.getElementById('panel-progress').innerHTML=
+    '<div class="hero"><div class="n tnum">'+pct+'%</div><div class="label">of the course</div></div>'+
+    '<div class="level"><h2>This month</h2></div>'+
+    '<div class="stat"><div class="n tnum">'+streak+'</div><div class="label">day streak</div></div>'+
+    '<div class="stat"><div class="n tnum">'+dc+' / '+TOTAL_UNITS+'</div><div class="label">units done</div></div>'+
+    '<div class="stat"><div class="n tnum">'+cards+'</div><div class="label">cards learned</div></div>'+
+    '<div class="level"><h2>Roadmap</h2></div>'+road;
+}
+
+/* ================= Lesson (data-driven) ================= */
+let activeUnit=null,exIndex=0,exList=[];
+const RIGHT='<svg class="ar" viewBox="0 0 24 24"><path d="M4 12h15M13 6l6 6-6 6"/></svg>';
+function openLesson(id){const u=UNITS.find(x=>x.id===id);if(u&&lessonState(u)==='locked')return;activeUnit=id;exIndex=0;renderLesson(id);show('lesson');}
+function typeRow(label,n){return '<div class="type-row"><span class="label">'+label+'</span><span class="label tnum">'+n+' / 4</span></div>';}
+function fbNode(){return '<div class="fb" hidden><div class="verdict"></div><p class="fb-en"></p><p class="ru fb-ru"></p><button class="next">Continue&nbsp;'+RIGHT+'</button></div>';}
+function renderLesson(id){
+  const c=C[id];const main=document.getElementById('lessonMain');main.innerHTML='';
+  exList=[];
+  // 1 pick
+  const sPick=document.createElement('section');sPick.className='ex';
+  sPick.innerHTML=typeRow('Pick the stronger',1)+'<div class="q">'+esc(c.pick.q)+'</div><div class="ru">'+esc(c.pick.qru)+'</div><div class="opts"></div>'+fbNode();
+  const opts=sPick.querySelector('.opts');
+  c.pick.opts.forEach(o=>{const b=document.createElement('button');b.className='opt';b.textContent=o.t;b.dataset.ok=o.ok?'1':'0';
+    b.addEventListener('click',()=>{if(sPick._done)return;sPick._done=true;
+      opts.querySelectorAll('.opt').forEach(x=>{if(x.dataset.ok==='1')x.classList.add('correct');else x.classList.add('wrong');});
+      showFB(sPick,o.ok,c.pick.fe,c.pick.fr);});opts.appendChild(b);});
+  main.appendChild(sPick);exList.push(sPick);
+  // 2 fix
+  const sFix=document.createElement('section');sFix.className='ex';sFix.hidden=true;
+  sFix.innerHTML=typeRow('Fix the tense',2)+'<div class="q">Put it in the past — what you did.</div><div class="ru">Поставь в прошедшее — что ты сделал.</div><div class="fixline"></div>'+fbNode();
+  buildFix(sFix.querySelector('.fixline'),c.fix,sFix,(ok)=>showFB(sFix,ok,c.fix.he,c.fix.hr));
+  main.appendChild(sFix);exList.push(sFix);
+  // 3 assemble
+  const sAsm=document.createElement('section');sAsm.className='ex';sAsm.hidden=true;
+  sAsm.innerHTML=typeRow('Build the sentence',3)+'<div class="q">Put the words in order to form one strong sentence.</div><div class="ru">'+esc(c.asm.ru)+'</div><div class="build"></div><div class="bank"></div><button class="next asm-check" hidden>Check&nbsp;'+RIGHT+'</button>'+fbNode();
+  buildAssemble(sAsm,c.asm);
+  main.appendChild(sAsm);exList.push(sAsm);
+  // 4 free
+  const sFree=document.createElement('section');sFree.className='ex';sFree.hidden=true;
+  let chk='';c.free.cl.forEach(it=>{chk+='<button class="chk"><span class="box"></span><span class="t">'+esc(it[0])+'<span class="ru">'+esc(it[1])+'</span></span></button>';});
+  sFree.innerHTML=typeRow('Your own screen',4)+'<div class="q">'+esc(c.free.t)+'</div><div class="ru">'+esc(c.free.tr)+'</div><div class="tmpl">'+esc(c.free.tmpl)+'</div><textarea class="ta" placeholder="Type in English…"></textarea><button class="next free-check">Check myself&nbsp;'+RIGHT+'</button><div class="self" hidden>'+chk+'<div class="model"><div class="m-en">'+esc(c.free.m)+'</div></div><button class="next">Finish&nbsp;'+RIGHT+'</button></div>';
+  sFree.querySelectorAll('.chk').forEach(x=>x.addEventListener('click',()=>x.classList.toggle('on')));
+  sFree.querySelector('.free-check').addEventListener('click',()=>{sFree.querySelector('.free-check').hidden=true;sFree.querySelector('.self').hidden=false;});
+  main.appendChild(sFree);exList.push(sFree);
+  // wire all continue/finish
+  main.querySelectorAll('.fb .next, .self .next').forEach(b=>b.addEventListener('click',()=>advance()));
+}
+function advance(){
+  if(exIndex<exList.length-1){exList[exIndex].hidden=true;exIndex++;exList[exIndex].hidden=false;window.scrollTo(0,0);}
+  else{ if(activeUnit){S.done[activeUnit]=true;saveState();} openApp('learn'); }
+}
+function showFB(sec,ok,en,ru){const fb=sec.querySelector('.fb');
+  fb.classList.toggle('ok',ok);fb.classList.toggle('no',!ok);
+  fb.querySelector('.verdict').textContent=ok?'Strong.':'Not quite.';
+  fb.querySelector('.fb-en').textContent=en;fb.querySelector('.fb-ru').textContent=ru;fb.hidden=false;}
+/* fix builder: generate inline choices from sentence + blanks */
+function buildFix(el,fix,sec,onAll){
+  let rest=fix.s,html='';
+  fix.b.forEach(pair=>{
+    const pres=pair[0],past=pair[1];
+    const m=rest.match(new RegExp('\\b'+escReg(pres)+'\\b'));
+    if(m){html+=esc(rest.slice(0,m.index));
+      html+='<span class="blk" data-ans="'+esc(past)+'"><button class="choice" data-v="'+esc(pres)+'">'+esc(pres)+'</button><span class="slash">/</span><button class="choice" data-v="'+esc(past)+'">'+esc(past)+'</button></span>';
+      rest=rest.slice(m.index+pres.length);}
+  });
+  html+=esc(rest);el.innerHTML=html;
+  el.querySelectorAll('.choice').forEach(c=>c.addEventListener('click',()=>{
+    if(sec._done)return;const blk=c.closest('.blk');
+    blk.querySelectorAll('.choice').forEach(x=>x.classList.remove('sel'));c.classList.add('sel');
+    const blks=[...el.querySelectorAll('.blk')];
+    if(blks.every(b=>b.querySelector('.choice.sel'))){sec._done=true;let ok=true;
+      blks.forEach(b=>{const sel=b.querySelector('.choice.sel');
+        if(sel.dataset.v===b.dataset.ans)sel.classList.add('correct');
+        else{sel.classList.add('wrong');ok=false;b.querySelector('.choice[data-v="'+CSS.escape(b.dataset.ans)+'"]').classList.add('correct');}});
+      onAll(ok);}
+  }));
+}
+/* assemble builder */
+function buildAssemble(sec,asm){
+  const build=sec.querySelector('.build'),bank=sec.querySelector('.bank'),check=sec.querySelector('.asm-check');
+  let order=[];
+  asm.tiles.map((t,i)=>({t,i})).sort(()=>Math.random()-.5).forEach(o=>{
+    const b=document.createElement('button');b.className='tile';b.textContent=o.t;
+    b.addEventListener('click',()=>{if(sec._done)return;b.classList.add('used');
+      order.push(o.t);const p=document.createElement('button');p.className='tile';p.textContent=o.t;
+      p.addEventListener('click',()=>{if(sec._done)return;p.remove();b.classList.remove('used');const k=order.lastIndexOf(o.t);if(k>-1)order.splice(k,1);check.hidden=order.length!==asm.tiles.length;});
+      build.appendChild(p);check.hidden=order.length!==asm.tiles.length;});
+    bank.appendChild(b);
+  });
+  check.addEventListener('click',()=>{if(sec._done)return;sec._done=true;check.hidden=true;
+    const ok=order.join('|')===asm.tiles.join('|');
+    showFB(sec,ok,ok?'Clean word order — the sentence reads naturally.':'Correct order: '+asm.tiles.join(' '),
+      ok?'Чистый порядок слов — фраза звучит естественно.':'Верный порядок: '+asm.tiles.join(' '));});
+}
+
+/* ================= Cards ================= */
+let DUE=[],cIdx=0;
+function initCards(){DUE=IDIOMS.concat(UNITS.map(u=>C[u.id].cards[0])).sort(()=>Math.random()-.5);cIdx=0;
+  document.getElementById('cardReview').hidden=false;document.getElementById('cardsDone').hidden=true;renderDue();}
+function renderDue(){const c=DUE[cIdx];
+  document.getElementById('cPos').textContent=c.pos;document.getElementById('cWord').textContent=c.w;
+  document.getElementById('cDef').textContent=c.def;document.getElementById('cDefRu').textContent=c.ru;
+  let ex=c.ex;if(ex.indexOf('<em>')<0){const stem=c.w.split(' ')[0];ex=ex.replace(new RegExp('('+escReg(stem)+'[a-z]*)','i'),'<em>$1</em>');}
+  document.getElementById('cEx').innerHTML=ex;document.getElementById('cExRu').textContent=c.exru;
+  document.getElementById('reveal').hidden=false;document.getElementById('bk').hidden=true;window.scrollTo(0,0);}
+document.getElementById('reveal').addEventListener('click',()=>{document.getElementById('reveal').hidden=true;document.getElementById('bk').hidden=false;});
+document.querySelectorAll('#panel-cards .rate button').forEach(b=>b.addEventListener('click',()=>{
+  S.cards[DUE[cIdx].w]=true;saveState();
+  if(cIdx<DUE.length-1){cIdx++;renderDue();}
+  else{document.getElementById('cardReview').hidden=true;document.getElementById('cardsDone').hidden=false;}}));
+document.getElementById('cardsRestart').addEventListener('click',initCards);
+
+/* ================= settings ================= */
+function setRu(on){document.body.classList.toggle('hide-ru',!on);
+  document.querySelectorAll('#tgRu button').forEach(b=>b.classList.toggle('on',(b.dataset.v==='1')===on));sSet('ds.ru',on?'1':'0');}
+document.querySelectorAll('#tgRu button').forEach(b=>b.addEventListener('click',()=>setRu(b.dataset.v==='1')));
+function applyTheme(v){document.documentElement.setAttribute('data-theme',v);
+  document.querySelectorAll('#tgTheme button').forEach(x=>x.classList.toggle('on',x.dataset.v===v));sSet('ds.theme',v);}
+document.querySelectorAll('#tgTheme button').forEach(b=>b.addEventListener('click',()=>applyTheme(b.dataset.v)));
+document.getElementById('resetBtn').addEventListener('click',()=>{try{localStorage.clear();}catch(e){}location.reload();});
+
+/* ================= nav ================= */
+document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>{const g=b.dataset.go;if(g==='app')openApp('learn');else show(g);}));
+document.getElementById('pitchNext').addEventListener('click',()=>{show(isOnboarded()?'splash':'onb2');});
+document.querySelectorAll('#onb2 .p-opt').forEach(b=>b.addEventListener('click',()=>{setRu(b.dataset.ru==='1');setOnboarded();show('splash');}));
+document.querySelectorAll('[data-back]').forEach(b=>b.addEventListener('click',()=>openApp(b.dataset.back)));
+tabs.forEach(t=>t.addEventListener('click',()=>setTab(t.dataset.tab)));
+
+/* ================= onboarding content / streak / rotation ================= */
+function isOnboarded(){return sGet('ds.onboarded')==='1';}
+function setOnboarded(){sSet('ds.onboarded','1');}
+function computeStreak(){try{
+  const today=new Date().toISOString().slice(0,10);const last=sGet('ds.lastDay');
+  let streak=parseInt(sGet('ds.streak')||'0',10)||0;
+  if(last!==today){const y=new Date(Date.now()-864e5).toISOString().slice(0,10);
+    streak=(last===y)?streak+1:1;sSet('ds.lastDay',today);sSet('ds.streak',String(streak));}
+  return streak<1?1:streak;}catch(e){return 1;}}
+function pickDeck(key,len){try{
+  let rem=JSON.parse(sGet('ds.deck.'+key)||'[]');
+  if(!Array.isArray(rem)||rem.length===0){rem=[...Array(len).keys()];
+    for(let i=rem.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[rem[i],rem[j]]=[rem[j],rem[i]];}}
+  const idx=rem.shift();sSet('ds.deck.'+key,JSON.stringify(rem));return (idx||0)%len;}catch(e){return Math.floor(Math.random()*len);}}
+function renderPosters(){
+  const r=REWRITES[pickDeck('rw',REWRITES.length)];
+  document.getElementById('oWeak').textContent=r.weak;document.getElementById('oStrong').textContent=r.strong;
+  const q=QUOTES[pickDeck('q',QUOTES.length)];document.getElementById('quoteText').textContent='“'+q.t+'”';
+  const parts=q.a.trim().split(/\s+/);const sur=parts.length>1?parts.pop():'';
+  document.getElementById('quoteCite').innerHTML=parts.join(' ')+(sur?'<br>'+sur:'');
+  document.getElementById('streakN').textContent=String(computeStreak());}
+
+/* ================= init ================= */
+(function init(){
+  const ru=sGet('ds.ru');setRu(ru===null?true:ru==='1');
+  const th=sGet('ds.theme');
+  if(th)applyTheme(th);
+  else{const dark=matchMedia('(prefers-color-scheme: dark)').matches;
+    document.querySelectorAll('#tgTheme button').forEach(x=>x.classList.toggle('on',x.dataset.v===(dark?'dark':'light')));}
+  renderPosters();renderLearn();
+})();
+document.querySelectorAll('.back,.w-continue,.slink,#cardsRestart,#reveal').forEach(el=>{el.innerHTML=el.innerHTML.replace(/→/g,RIGHT).replace(/←/g,'<svg class="ar" viewBox="0 0 24 24"><path d="M20 12H5M11 6l-6 6 6 6"/></svg>');});
+</script>
+
+</body></html>
