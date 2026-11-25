@@ -1,6 +1,6 @@
 /* Design Speak service worker — app-shell cache, offline-first.
    Bump CACHE whenever you change index.html or the icons. */
-const CACHE = 'ds-v1';
+const CACHE = 'ds-v2';
 const ASSETS = [
   './',
   './index.html',

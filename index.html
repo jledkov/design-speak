@@ -1,11 +1,14 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style><link rel="manifest" href="manifest.webmanifest">
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#E12D1B">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Design Speak">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-</head><body>
 <meta name="claude:viewport-fit-sides" content="cover">
 <title>Design Speak App</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap">
@@ -138,6 +141,18 @@ body.hide-ru .ru{display:none}
 .toggle button{font-weight:700;font-size:16px;color:var(--muted)}
 .toggle button.on{color:var(--ink)}
 .slink{color:var(--accent);font-weight:600;font-size:16px}
+#installInvite{grid-column:1 / 13;margin-top:32px}
+.inst-lead{margin:0;color:#000;font-weight:600;font-size:clamp(16px,4.2vw,19px);line-height:1.3;max-width:26ch}
+.inst-steps{margin:12px 0 0;color:#000;font-weight:500;font-size:14px;line-height:20px}
+.inst-steps:empty{display:none}
+.inst-steps-s{color:var(--muted);font-size:14px;line-height:20px;padding-bottom:12px}
+.about{padding-top:40px;padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))}
+.about .label{margin-bottom:16px}
+.about-main{margin:0 0 4px;font-weight:600;font-size:16px;line-height:22px;color:var(--ink);max-width:40ch}
+.about .ru{margin:0 0 12px;max-width:40ch}
+.about-links{display:flex;gap:28px;margin-top:16px}
+.about-links a{color:var(--accent);font-weight:600;font-size:16px;text-decoration:none}
+.about-ver{margin-top:24px;color:var(--muted);font-weight:600;font-size:13px;letter-spacing:.08em}
 </style>
 
 <section class="poster pad" id="onb1">
@@ -154,6 +169,21 @@ body.hide-ru .ru{display:none}
   <div class="p-top"><div class="w-n tnum" id="streakN">1</div><div class="p-label">DAYS</div></div>
   <div class="p-mid"><p class="w-q" id="quoteText"></p><p class="w-cite p-label" id="quoteCite"></p></div>
   <div class="p-bot"><button class="w-continue" data-go="app">Continue&nbsp;→</button></div>
+</section>
+<section class="poster pad" id="congrats" hidden>
+  <div class="p-top"><div class="p-label">Design Speak</div></div>
+  <div class="p-mid">
+    <div class="o-q">Nice work!</div>
+    <div class="o-q-ru">Отлично! Дальше будет ещё интереснее.</div>
+    <div id="installInvite" hidden>
+      <p class="inst-lead"></p>
+      <p class="inst-steps"></p>
+    </div>
+  </div>
+  <div class="p-bot">
+    <button class="p-opt" id="installBtn" hidden>Install&nbsp;→</button>
+    <button class="w-continue" id="congratsContinue">Continue&nbsp;→</button>
+  </div>
 </section>
 
 <div class="app" id="app" hidden>
@@ -205,8 +235,22 @@ body.hide-ru .ru{display:none}
       <span class="toggle" id="tgRu"><button data-v="0">No</button><button data-v="1" class="on">Yes</button></span></div>
     <div class="srow"><span class="srow-l">Theme</span>
       <span class="toggle" id="tgTheme"><button data-v="light" class="on">Light</button><button data-v="dark">Dark</button></span></div>
+    <div class="srow" id="installRow" hidden><span class="srow-l">Install app</span><button class="slink" id="installBtn2">Install&nbsp;→</button></div>
+    <div class="inst-steps-s" id="installStepsS" hidden></div>
     <div class="srow"><span class="srow-l">Backup progress</span><button class="slink">Export&nbsp;→</button></div>
     <div class="srow"><span class="srow-l">Reset (testing)</span><button class="slink" id="resetBtn">Reset&nbsp;→</button></div>
+    <div class="about">
+      <div class="label">About</div>
+      <p class="about-main">Made by Ivan Ledkov with Claude.</p>
+      <p class="ru">Сделал Иван Ледков вместе с Claude.</p>
+      <p class="about-main">Your answers never leave your browser — nothing is collected.</p>
+      <p class="ru">Ответы не покидают браузер — мы ничего не собираем.</p>
+      <div class="about-links">
+        <a href="https://ledkov.design" target="_blank" rel="noopener">ledkov.design</a>
+        <a href="https://github.com/jledkov/design-speak" target="_blank" rel="noopener">GitHub</a>
+      </div>
+      <div class="about-ver tnum">v1.0</div>
+    </div>
   </main>
 </div>
 
@@ -404,7 +448,7 @@ function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g
 function escReg(s){return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');}
 
 /* ================= screens ================= */
-const SCREENS=['onb1','onb2','splash','app','lesson','settings'];
+const SCREENS=['onb1','onb2','splash','congrats','app','lesson','settings'];
 function show(id){SCREENS.forEach(s=>document.getElementById(s).hidden=(s!==id));window.scrollTo(0,0);}
 const tabs=document.querySelectorAll('.pivot button');
 function setTab(name){
@@ -498,7 +542,11 @@ function renderLesson(id){
 }
 function advance(){
   if(exIndex<exList.length-1){exList[exIndex].hidden=true;exIndex++;exList[exIndex].hidden=false;window.scrollTo(0,0);}
-  else{ if(activeUnit){S.done[activeUnit]=true;saveState();} openApp('learn'); }
+  else{
+    if(activeUnit){S.done[activeUnit]=true;saveState();}
+    if(doneCount()===1 && sGet('ds.installPrompted')!=='1') showCongrats();
+    else openApp('learn');
+  }
 }
 function showFB(sec,ok,en,ru){const fb=sec.querySelector('.fb');
   fb.classList.toggle('ok',ok);fb.classList.toggle('no',!ok);
@@ -570,8 +618,45 @@ function applyTheme(v){document.documentElement.setAttribute('data-theme',v);
 document.querySelectorAll('#tgTheme button').forEach(b=>b.addEventListener('click',()=>applyTheme(b.dataset.v)));
 document.getElementById('resetBtn').addEventListener('click',()=>{try{localStorage.clear();}catch(e){}location.reload();});
 
+/* ================= install / congrats ================= */
+let deferredPrompt=null;
+addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;refreshInstallRow();});
+addEventListener('appinstalled',()=>{deferredPrompt=null;refreshInstallRow();});
+const UA=navigator.userAgent||'';
+function isMobile(){return /android|iphone|ipad|ipod/i.test(UA);}
+function isIOS(){return /iphone|ipad|ipod/i.test(UA);}
+function isStandalone(){try{return matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;}catch(e){return false;}}
+function canOfferInstall(){return isMobile()&&!isStandalone();}
+function ruOn(){return sGet('ds.ru')!=='0';}
+function stepsText(){return isIOS()
+  ?(ruOn()?'Нажмите «Поделиться», затем «На экран „Домой“».':'Tap Share, then “Add to Home Screen”.')
+  :(ruOn()?'Откройте меню браузера и выберите «Установить приложение».':'Open the browser menu and choose “Install app”.');}
+function leadText(){return ruOn()
+  ?'Добавьте на домашний экран — чтобы было всегда под рукой, а не терялось в истории браузера.'
+  :'Add it to your home screen — always one tap away, no digging through browser history.';}
+async function doInstall(){
+  if(deferredPrompt){try{deferredPrompt.prompt();await deferredPrompt.userChoice;}catch(e){}deferredPrompt=null;refreshInstallRow();return true;}
+  return false;}
+function showCongrats(){
+  sSet('ds.installPrompted','1');
+  document.querySelector('#congrats .o-q-ru').style.display=ruOn()?'':'none';
+  const invite=document.getElementById('installInvite');
+  if(canOfferInstall()){
+    invite.hidden=false;
+    document.querySelector('#installInvite .inst-lead').textContent=leadText();
+    document.querySelector('#installInvite .inst-steps').textContent=deferredPrompt?'':stepsText();
+    document.getElementById('installBtn').hidden=!deferredPrompt;
+  }else{invite.hidden=true;document.getElementById('installBtn').hidden=true;}
+  show('congrats');}
+document.getElementById('installBtn').addEventListener('click',async()=>{await doInstall();document.getElementById('installBtn').hidden=!deferredPrompt;});
+document.getElementById('congratsContinue').addEventListener('click',()=>openApp('learn'));
+function refreshInstallRow(){const row=document.getElementById('installRow');if(!row)return;row.hidden=!canOfferInstall();}
+document.getElementById('installBtn2').addEventListener('click',async()=>{
+  if(await doInstall())return;
+  const s=document.getElementById('installStepsS');s.textContent=stepsText();s.hidden=!s.hidden;});
+
 /* ================= nav ================= */
-document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>{const g=b.dataset.go;if(g==='app')openApp('learn');else show(g);}));
+document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>{const g=b.dataset.go;if(g==='app')openApp('learn');else{show(g);if(g==='settings')refreshInstallRow();}}));
 document.getElementById('pitchNext').addEventListener('click',()=>{show(isOnboarded()?'splash':'onb2');});
 document.querySelectorAll('#onb2 .p-opt').forEach(b=>b.addEventListener('click',()=>{setRu(b.dataset.ru==='1');setOnboarded();show('splash');}));
 document.querySelectorAll('[data-back]').forEach(b=>b.addEventListener('click',()=>openApp(b.dataset.back)));
@@ -608,13 +693,12 @@ function renderPosters(){
     document.querySelectorAll('#tgTheme button').forEach(x=>x.classList.toggle('on',x.dataset.v===(dark?'dark':'light')));}
   renderPosters();renderLearn();
 })();
-document.querySelectorAll('.back,.w-continue,.slink,#cardsRestart,#reveal').forEach(el=>{el.innerHTML=el.innerHTML.replace(/→/g,RIGHT).replace(/←/g,'<svg class="ar" viewBox="0 0 24 24"><path d="M20 12H5M11 6l-6 6 6 6"/></svg>');});
+document.querySelectorAll('.back,.w-continue,.slink,#cardsRestart,#reveal,#installBtn').forEach(el=>{el.innerHTML=el.innerHTML.replace(/→/g,RIGHT).replace(/←/g,'<svg class="ar" viewBox="0 0 24 24"><path d="M20 12H5M11 6l-6 6 6 6"/></svg>');});
 </script>
-
 <script>
   if ('serviceWorker' in navigator) {
     addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
   }
   if (navigator.storage && navigator.storage.persist) { navigator.storage.persist(); }
 </script>
-</body></html>
+</html>
